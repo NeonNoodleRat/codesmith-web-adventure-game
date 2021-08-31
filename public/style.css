@@ -1,0 +1,45 @@
+.clickable:hover {
+    cursor: pointer;
+}
+
+.clickable {
+    color: red;
+}
+
+body {
+    background-color: black;
+}
+
+.game-text {
+    color: green;
+}
+
+.player-text {
+    color: white;
+}
+
+.player-text-box {
+    background-color: black;
+    color: white;
+}
+
+.player-text-box-container {
+    padding-top: 15px;
+}
+
+.outside-container {
+    padding-top: 20px;
+    padding-left: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.character-stats {
+    display: none;
+    color: yellow;
+    padding-right: 100px;
+}
+
+.character-stats .title {
+    text-decoration: underline;
+}
