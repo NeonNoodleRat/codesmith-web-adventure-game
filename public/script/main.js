@@ -25,8 +25,15 @@ $(document).ready(function(){
 
     let gameState = 
     {
-        // login, firstTextPrompt, 
-        stage: 0
+        // login
+        // questPrompt
+        // startQuest
+        // shop
+        // persuasion
+        // fight
+        // win 
+        // lose
+        stage: 'login'
     }
 
     $('.player-text-box').keypress(function(e){
@@ -39,22 +46,29 @@ $(document).ready(function(){
             addToScreenText(textBoxValue, 'user');
 
             switch(gameState.stage){
-                case 0:
+                case 'login':
                     // they entered their username
                     loginStage(textBoxValue);
                     break;
-                case 1:
+                case 'questPrompt':
                     // response to first adventure text prompt
                     acceptOrDeclineQuest(textBoxValue);
                     break;
-                case 2:
+                case 'shop':
                     // response to second adventure text prompt
+                    shopKeeper();
                     break;
-                case 3:
+                case 'startQuest':
                     // response to third adventure text prompt
                     break;
-                case 4:
+                case 'fight':
                     // last game stage, they either on or lost
+                    break;
+                case 'persuasion':
+                    break;
+                case 'win':
+                    break;
+                case 'lose':
                     break;
             }
         }
@@ -97,7 +111,7 @@ $(document).ready(function(){
                 addToScreenText(prompt, "computer");
                 $('.player-text-box').attr("placeholder", "yes or no?");
 
-                gameState.stage = 1;
+                gameState.stage = 'questPrompt';
             },
             error: function(){
                 alert('wompwomp');
@@ -111,16 +125,35 @@ $(document).ready(function(){
         if (answer === 'yes'){
             addToScreenText(`Congratulations ${userState.username}! Before you leave town would you like to visit the shop?`, "computer");
 
-            $('.player-text-box').attr("placeholder", "");
-            gameState.stage = 2;
+            $('.player-text-box').attr("placeholder", "yes or no?");
+            gameState.stage = 'shop';
 
         } else if (answer === 'no'){
-            addToScreenText("Well...alrighty then.", "computer");
-            gameState.stage = 0;
+            addToScreenText("Okay, off you go!", "computer");
+            gameState.stage = 'startQuest';
 
         } else {
             addToScreenText("Not a valid input. Please respond with 'yes' or 'no'", "computer");
         }
+    }
+
+    function shopKeeper(){
+        $.ajax({
+            method: 'GET',
+            url: window.location.href + 'getShopInventory',
+            success: function(shopItems){
+                addToScreenText("( ͡° ͜ʖ ͡°)", "computer");
+                addToScreenText("Welcome to my shop adventurer, persue my goods.", "computer");
+                debugger;
+                $.each(shopItems, function(key, item) {
+                    debugger;
+                    addToScreenText(item, computer);
+                });
+            },
+            error: function(){
+                alert('wompwomp');
+            }
+        });
     }
 
     //need session for this function

@@ -1,0 +1,3 @@
+health potion - 10 gold
+fancy hat - 30 gold
+sword - 30 gold
