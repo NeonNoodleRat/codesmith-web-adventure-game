@@ -40,22 +40,7 @@ app.get('/getShopInventory', function(request, response) {
         }
 
         let shopItemArray = data.toString().split('\n');
-        // let arrayFinal = [];
 
-        // for (let i = 0; i < shopItemArray.length; i++){
-        //     console.log('item: ' + shopItemArray[i]);
-        //     arrayFinal.push(shopItemArray[i]);
-        // }
-
-        // //console.log('finalArray: ' + arrayFinal);
-        // //console.log('finalArray! terminal glitch check for long strings');
-        // for (let i = 0; i < arrayFinal; arrayFinal++) {
-        //     console.log('line 53', arrayFinal[i]);
-        // }
-
-        // response.end(JSON.stringify(arrayFinal));
-
-        //response.end(JSON.stringify(shopItemArray));
         response.status(200).json({data: shopItemArray})
     })
 });

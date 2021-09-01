@@ -11,9 +11,35 @@ $(document).ready(function(){
         }
     }
 
-    class ShopItem{
+    class ShopItem {
         constructor(selectNumber, name, cost){
+            this.selectNumber = selectNumber;
+            this.name = name;
+            this.cost = cost;
+        }
 
+        getDisplayCost(){
+            return this.cost + ' gold';
+        }
+    }
+
+    // a function to dump JS arrays into 
+    // so i can add search functions to mimic list type from C#
+    class List {
+        constructor(javascriptArray){
+            this.list = javascriptArray
+        }
+
+        Select(property, value){
+            for (let i = 0; i < this.list.length; i++){
+                for (const propertyName in this.list[i]){
+                    if (property === propertyName && this.list[i][property] === value) {
+                        return this.list[i];
+                    }
+                }
+            }
+
+            return null;
         }
     }
 
@@ -21,6 +47,8 @@ $(document).ready(function(){
     shopItems.push(new ShopItem(1, "health potion", 10));
     shopItems.push(new ShopItem(2, "fancy hat", 10));
     shopItems.push(new ShopItem(3, "sword", 10));
+
+    let shopItemsList = new List(shopItems);
 
     let goblin = new Monster("Goblin", 5, 2);
 
@@ -66,14 +94,12 @@ $(document).ready(function(){
                     acceptOrDeclineQuest(textBoxValue);
                     break;
                 case 'shop':
-                    // response to second adventure text prompt
+                    checkPurchaseOrExit(textBoxValue);
                     shopKeeper();
                     break;
                 case 'startQuest':
-                    // response to third adventure text prompt
                     break;
                 case 'fight':
-                    // last game stage, they either on or lost
                     break;
                 case 'persuasion':
                     break;
@@ -149,25 +175,36 @@ $(document).ready(function(){
     }
 
     function shopKeeper(){
-        $.ajax({
-            method: 'GET',
-            url: window.location.href + 'getShopInventory',
-            success: function(response){
-                let shopItems = response.data;
+        addToScreenText('( ͡° ͜ʖ ͡°)', "computer");
+        addToScreenText('Welcome to my shop. Enter an item\'s corresponding number to purchase an item or type exit to leave.', "computer");
 
-                addToScreenText("( ͡° ͜ʖ ͡°)", "computer");
-                addToScreenText("Welcome to my shop adventurer, persue my goods.", "computer");
-                let listItems = [];
+        $('.player-text-box').attr("placeholder", "");
+        for (let i = 0; i < shopItems.length; i++) {
+            let displayString = `${shopItems[i].selectNumber} ${shopItems[i].name} ${shopItems[i].getDisplayCost()}`
+            addToScreenText(displayString, "computer");
+        }
+    }
 
-                $.each(shopItems, function(key, item) {
-                    listItems.push(new ShopItem("Goblin", 5, 2))
-                    addToScreenText(item, 'computer');
-                });
-            },
-            error: function(){
-                alert('wompwomp');
-            }
-        });
+    function checkPurchaseOrExit(playerInput){
+        let selectedItem = null;
+        switch(playerInput){
+            case '1':
+                selectedItem = shopItemsList.Select("selectNumber", 1);
+                break;
+            case '2':
+                selectedItem = shopItemsList.Select("selectNumber", 2);
+                break;
+            case '3':
+                selectedItem = shopItemsList.Select("selectNumber", 3);
+                break;
+            case 'exit':
+                addToScreenText("See ya!", "computer");
+                break;
+            default:
+                addToScreenText("Not a valid input. Please input '1', '2', '3', or 'exit", "computer");
+        }
+
+        debugger;
     }
 
     //need session for this function
