@@ -11,6 +11,17 @@ $(document).ready(function(){
         }
     }
 
+    class ShopItem{
+        constructor(selectNumber, name, cost){
+
+        }
+    }
+
+    let shopItems = [];
+    shopItems.push(new ShopItem(1, "health potion", 10));
+    shopItems.push(new ShopItem(2, "fancy hat", 10));
+    shopItems.push(new ShopItem(3, "sword", 10));
+
     let goblin = new Monster("Goblin", 5, 2);
 
     let userState = 
@@ -141,13 +152,16 @@ $(document).ready(function(){
         $.ajax({
             method: 'GET',
             url: window.location.href + 'getShopInventory',
-            success: function(shopItems){
+            success: function(response){
+                let shopItems = response.data;
+
                 addToScreenText("( ͡° ͜ʖ ͡°)", "computer");
                 addToScreenText("Welcome to my shop adventurer, persue my goods.", "computer");
-                debugger;
+                let listItems = [];
+
                 $.each(shopItems, function(key, item) {
-                    debugger;
-                    addToScreenText(item, computer);
+                    listItems.push(new ShopItem("Goblin", 5, 2))
+                    addToScreenText(item, 'computer');
                 });
             },
             error: function(){

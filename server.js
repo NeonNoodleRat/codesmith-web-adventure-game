@@ -40,41 +40,23 @@ app.get('/getShopInventory', function(request, response) {
         }
 
         let shopItemArray = data.toString().split('\n');
-        let arrayFinal = [];
-        //console.log(shopItemArray);
+        // let arrayFinal = [];
 
-        for (let i = 0; i < shopItemArray.length; i++){
-            // let item = shopItemArray[i];
+        // for (let i = 0; i < shopItemArray.length; i++){
+        //     console.log('item: ' + shopItemArray[i]);
+        //     arrayFinal.push(shopItemArray[i]);
+        // }
 
-            // console.log(item, item[item.length - 2])
+        // //console.log('finalArray: ' + arrayFinal);
+        // //console.log('finalArray! terminal glitch check for long strings');
+        // for (let i = 0; i < arrayFinal; arrayFinal++) {
+        //     console.log('line 53', arrayFinal[i]);
+        // }
 
-            // if (item[item.length - 2] === '\\'){
-            //     console.log('got here! ' + item);
-            // } else {
-            //     console.log('no slashes at the end');
-            // }
-            arrayFinal.push(shopItemArray[i]);
-            //arrayFinal.push(item[item.length - 2] === '\\' ? item.substring(0, item.length - 1) : item);
-        }
+        // response.end(JSON.stringify(arrayFinal));
 
-        // const fixedShopItemArray = shopItemArray.map((item) => {
-        //     //console.log('item: ', item)
-        //     return item;
-        //     //arrayFinal.push(item);
-        //     //console.log('character: ', item[item.length - 2]);
-        //     if (item[item.length - 2] === '\\') {
-        //         // console.log(item.substring(0, item.length - 1))
-        //         let holder = item.substring(0, item.length - 1);
-        //         //return item.substring(0, item.length - 1);
-        //         //console.log('holder: ' + holder);
-        //         return holder;
-        //     }
-        //     return;
-        // })
-        console.log('finalArray: ' + arrayFinal);
-        //console.log(fixedShopItemArray);
-
-        response.end(JSON.stringify(arrayFinal));
+        //response.end(JSON.stringify(shopItemArray));
+        response.status(200).json({data: shopItemArray})
     })
 });
 
