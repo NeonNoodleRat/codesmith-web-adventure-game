@@ -18,7 +18,7 @@ $(document).ready(function(){
                     acceptOrDeclineQuest(textBoxValue);
                     break;
                 case 'shopPrompt':
-                    shopKeeper();
+                    shopKeeper(textBoxValue);
                     break;
                 case 'shop':
                     checkPurchaseOrExit(textBoxValue);
@@ -78,6 +78,11 @@ $(document).ready(function(){
                 userState.username = username;
 
                 $('.character-stats .username').text('Name: ' + username);
+                // $('.character-stats .level')[0].innerHTML += (userState.level);
+                $('.character-stats .health .value').text(userState.health);
+                $('.character-stats .gold .value').text(userState.coin);
+                $('.character-stats .armor .value').text(userState.armor);
+                $('.character-stats .weapon .value').text(userState.weapon);
                 $('.character-stats').show();
 
                 addToScreenText(prompt, "computer");
@@ -101,25 +106,30 @@ $(document).ready(function(){
             gameState.stage = 'shopPrompt';
 
         } else if (answer === 'no'){
-            addToScreenText("Okay, off you go!", "computer");
-            gameState.stage = 'startQuest';
-
+            addToScreenText("Okay, see ya!", "computer");
+            $('.player-text-box-container').hide();
         } else {
             addToScreenText("Not a valid input. Please respond with 'yes' or 'no'", "computer");
         }
     }
 
-    function shopKeeper(){
-        addToScreenText('( ͡° ͜ʖ ͡°)', "computer");
-        addToScreenText('Welcome to my shop. Enter an item\'s corresponding number to purchase an item or type exit to leave.', "computer");
+    function shopKeeper(playerInput){
+        if (playerInput === 'yes'){
+            addToScreenText('( ͡° ͜ʖ ͡°)', "computer");
+            addToScreenText('Welcome to my shop. Enter an item\'s corresponding number to purchase an item or type exit to leave.', "computer");
 
-        $('.player-text-box').attr("placeholder", "");
-        for (let i = 0; i < shopItems.length; i++) {
-            let displayString = `${shopItems[i].selectNumber} ${shopItems[i].name} ${shopItems[i].getDisplayCost()}`
-            addToScreenText(displayString, "computer");
+            $('.player-text-box').attr("placeholder", "");
+            for (let i = 0; i < shopItems.length; i++) {
+                let displayString = `${shopItems[i].selectNumber} ${shopItems[i].name} ${shopItems[i].getDisplayCost()}`
+                addToScreenText(displayString, "computer");
+            }
+
+            gameState.stage = 'shop';
+        } else {
+            gameState.stage = 'startQuest';
+            addToScreenText('Time to hit the road! You leave town on the dusty path leading south and walk for a few uneventful hours until you come upon a fork in the road. Do you go left or right?', "computer");
+            $('.player-text-box').attr("placeholder", "left or right?");
         }
-
-        gameState.stage = 'shop';
     }
 
     function checkPurchaseOrExit(playerInput){
@@ -203,13 +213,43 @@ $(document).ready(function(){
                     break;
             }
 
-            addToScreenText(`Do you want to try to fight or talk?`, "computer");
             $('.player-text-box').attr("placeholder", "");
         }
     }
 
     function fight(){
+        userState.continueFight = true;
+        
+        $('.monster-stats').show();
+        $('.monster-stats .name .value').text(userState.currentMonster.name);
+        $('.monster-stats .health .value').text(userState.currentMonster.health);
 
+        userState.intervalId = setInterval(fightResolution, 1000);
+    }
+
+    function fightResolution(){
+        addToScreenText(`You swing your ${userState.weapon} at the ${userState.currentMonster.name} while it lunges at you.`, "computer");
+
+        let damage = Math.ceil(Math.random() * 4);
+        let healthLost = Math.ceil(Math.random() * 2);
+
+        addToScreenText(`You lose ${healthLost} health and hit the ${userState.currentMonster.name} for ${damage}.`, "computer");
+
+        userState.health = userState.health - healthLost;
+        $('.character-stats .health .value').text(userState.health);
+        userState.currentMonster.health = userState.currentMonster.health - damage;
+        $('.monster-stats .health .value').text(userState.currentMonster.health);
+
+        if (userState.currentMonster.health <= 0 || userState.health <= 0) {
+            clearInterval(userState.intervalId);
+
+            if (userState.health <= 0){
+                lose();
+            } else if (userState.currentMonster.health <= 0){
+                addToScreenText(`You defeated the monster.`, "computer");
+                win();
+            }
+        }
     }
 
     function talk(){
@@ -222,25 +262,25 @@ $(document).ready(function(){
             $('.gold').text(`Gold: ${userState.coin}`);
         } else {
             let result = Math.abs(Math.ceil((Math.random() * 2)-1));
-
             // 0 is fail, 1 is pass
             if (result === 0){
                 addToScreenText(`The ${userState.currentMonster.name} scowls at your attempt to make peace with words and lunges at you.`, "computer");
                 addToScreenText(`Prepare to fight!`, "computer");
+                fight();
             } else if (result === 1){
                 addToScreenText(`The ${userState.currentMonster.name} shouts "I like your funny words magic man! They toss you 5 gold and go back to crouching in their bush."`, "computer");
             }
         }
     }
 
-    function investigatePrompt(playerInput){
-        if (playerInput !== 'yes' && playerInput !== 'no'){
-            addToScreenText("Not a valid input. Please input 'yes' or 'no'", "computer");
-        } else {
-            addToScreenText(`You head down the ${playerInput} side of the path. After a few minutes you hear a rustling in some nearby bushes. Do you investigate?`, "computer");
-            $('.player-text-box').attr("placeholder", "yes or no?");
-            gameState.stage = 'investigatePrompt';
-        }
+    function lose(){
+        addToScreenText('You lost too much health, bonk go to jail. Better luck next time!', "computer");
+        $('.player-text-box-container').hide();
+    }
+
+    function win(){
+        addToScreenText('You won and found Mr. Mittens, congrats!', "computer");
+        $('.player-text-box-container').hide();
     }
 
     //need session for this function

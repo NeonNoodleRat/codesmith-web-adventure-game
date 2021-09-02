@@ -69,7 +69,9 @@ let userState =
     armor: 'light',
     coin: 50,
     currentMonster: null,
-    otherInventory: null
+    otherInventory: null,
+    continueFight: false,
+    intervalId: null
 }
 
 let gameState = 

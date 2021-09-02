@@ -43,3 +43,13 @@ body {
 .character-stats .title {
     text-decoration: underline;
 }
+
+.monster-stats {
+    display: none;
+    color: red;
+    padding-right: 100px;
+}
+
+.monster-stats .title {
+    text-decoration: underline;
+}
