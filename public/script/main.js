@@ -1,87 +1,11 @@
 $(document).ready(function(){
-    class Monster {
-        constructor(name, health, gold){
-            // this.name = "Goblin";
-            // this.health = 5;
-            // this.gold = 2;
-        }
-
-        introduce() {
-            return `Ah! I'm a ${this.name} and I'm here to fight!`;
-        }
-    }
-
-    class ShopItem {
-        constructor(selectNumber, name, cost){
-            this.selectNumber = selectNumber;
-            this.name = name;
-            this.cost = cost;
-        }
-
-        getDisplayCost(){
-            return this.cost + ' gold';
-        }
-    }
-
-    // a function to dump JS arrays into 
-    // so i can add search functions to mimic list type from C#
-    class List {
-        constructor(javascriptArray){
-            this.list = javascriptArray
-        }
-
-        Select(property, value){
-            for (let i = 0; i < this.list.length; i++){
-                for (const propertyName in this.list[i]){
-                    if (property === propertyName && this.list[i][property] === value) {
-                        return this.list[i];
-                    }
-                }
-            }
-
-            return null;
-        }
-    }
-
-    let shopItems = [];
-    shopItems.push(new ShopItem(1, "health potion", 10));
-    shopItems.push(new ShopItem(2, "fancy hat", 10));
-    shopItems.push(new ShopItem(3, "sword", 10));
-
-    let shopItemsList = new List(shopItems);
-
-    let goblin = new Monster("Goblin", 5, 2);
-
-    let userState = 
-    {
-        username: '',
-        inAdventure: false,
-        weapon: 'dagger',
-        health: 20,
-        armor: 'light',
-        coin: 50
-    }
-
-    let gameState = 
-    {
-        // login
-        // questPrompt
-        // startQuest
-        // shop
-        // persuasion
-        // fight
-        // win 
-        // lose
-        stage: 'login'
-    }
-
     $('.player-text-box').keypress(function(e){
         // user pressed the enter key
         if (e.keyCode === 13){
             // empty out textbox and put the text they entered above
             let textBoxValue = $(".player-text-box").val();
 
-            // always add what the user inputed before advancing game stage
+            // always add what the user typed before advancing game stage
             addToScreenText(textBoxValue, 'user');
 
             switch(gameState.stage){
@@ -93,11 +17,14 @@ $(document).ready(function(){
                     // response to first adventure text prompt
                     acceptOrDeclineQuest(textBoxValue);
                     break;
-                case 'shop':
-                    checkPurchaseOrExit(textBoxValue);
+                case 'shopPrompt':
                     shopKeeper();
                     break;
+                case 'shop':
+                    checkPurchaseOrExit(textBoxValue);
+                    break;
                 case 'startQuest':
+                    startQuest(textBoxValue);
                     break;
                 case 'fight':
                     break;
@@ -106,6 +33,14 @@ $(document).ready(function(){
                 case 'win':
                     break;
                 case 'lose':
+                    break;
+                case 'investigatePrompt':
+                    break;
+                case 'encounterPrompt':
+                    encounterPrompt(textBoxValue);
+                    break;
+                case 'fightOrTalk':
+                    fightOrTalk(textBoxValue);
                     break;
             }
         }
@@ -163,7 +98,7 @@ $(document).ready(function(){
             addToScreenText(`Congratulations ${userState.username}! Before you leave town would you like to visit the shop?`, "computer");
 
             $('.player-text-box').attr("placeholder", "yes or no?");
-            gameState.stage = 'shop';
+            gameState.stage = 'shopPrompt';
 
         } else if (answer === 'no'){
             addToScreenText("Okay, off you go!", "computer");
@@ -183,6 +118,8 @@ $(document).ready(function(){
             let displayString = `${shopItems[i].selectNumber} ${shopItems[i].name} ${shopItems[i].getDisplayCost()}`
             addToScreenText(displayString, "computer");
         }
+
+        gameState.stage = 'shop';
     }
 
     function checkPurchaseOrExit(playerInput){
@@ -204,7 +141,106 @@ $(document).ready(function(){
                 addToScreenText("Not a valid input. Please input '1', '2', '3', or 'exit", "computer");
         }
 
-        debugger;
+        if (selectedItem != null){
+            addToScreenText(`${selectedItem.name} added to your inventory. Excellent choice. Good luck on your adventures!`, "computer");
+
+            userState.coin = userState.coin - selectedItem.cost;
+            userState.otherInventory = selectedItem.name;
+            $('.character-stats .gold').text(`Gold: ${userState.coin}`);
+            $('.character-stats .other').text(`Other: ${selectedItem.name}`);
+        }
+
+        gameState.stage = 'startQuest'
+        addToScreenText('Time to hit the road! You leave town on the dusty path leading south and walk for a few uneventful hours until you come upon a fork in the road. Do you go left or right?', "computer");
+
+        $('.player-text-box').attr("placeholder", "left or right?");
+    }
+
+    function startQuest(playerInput){
+        if (playerInput !== 'left' && playerInput !== 'right'){
+            addToScreenText("Not a valid input. Please input 'left' or 'right'", "computer");
+        } else {
+            addToScreenText(`You head down the ${playerInput} side of the path. After a few minutes you hear a rustling in some nearby bushes. Do you investigate?`, "computer");
+            $('.player-text-box').attr("placeholder", "yes or no?");
+            gameState.stage = 'encounterPrompt';
+        }
+    }
+
+    function encounterPrompt(playerInput){
+        userState.currentMonster = getRandomMonster();
+
+        if (playerInput !== 'yes' && playerInput !== 'no'){
+            addToScreenText("Not a valid input. Please input 'yes' or 'no'", "computer");
+        } else {
+            switch (playerInput){
+                case "yes":
+                    addToScreenText(`You run up to the bush and peek inside only for a ${userState.currentMonster.name} to jump out with an angry stance!`, "computer");
+                    break;
+                case "no":
+                    addToScreenText(`You decide that's a problem for someone else and begin to walk away when suddenly a ${userState.currentMonster.name} jumps out of the bush at you, with a sinister stance!`, "computer");
+                    break;
+            }
+
+            addToScreenText(`Do you want to try to fight or talk?`, "computer");
+            $('.player-text-box').attr("placeholder", "fight or talk?");
+
+            gameState.stage = 'fightOrTalk';
+        }
+    }
+
+    function fightOrTalk(playerInput){
+        if (playerInput !== 'fight' && playerInput !== 'talk'){
+            addToScreenText("Not a valid input. Please input 'fight' or 'talk'", "computer");
+        } else {
+            switch (playerInput){
+                case "fight":
+                    addToScreenText(`You pull out your ${userState.weapon} and prepare for battle!`, "computer");
+                    fight();
+                    break;
+                case "talk":
+                    addToScreenText(`You slowly lay down your ${userState.weapon} and begin to try to reason with the ${userState.currentMonster.name}`, "computer");
+                    talk();
+                    break;
+            }
+
+            addToScreenText(`Do you want to try to fight or talk?`, "computer");
+            $('.player-text-box').attr("placeholder", "");
+        }
+    }
+
+    function fight(){
+
+    }
+
+    function talk(){
+        if (userState.otherInventory === 'fancy hat'){
+            addToScreenText(`The ${userState.currentMonster.name} notices your fancy hat. Your hat pleases the ${userState.currentMonster.name}. They like it so much they toss you a coin and go back to crouching in their bush.`, "computer");
+            addToScreenText(`5 gold added to your stash.`, "computer");
+
+            userState.coin = userState.coin + 5;
+
+            $('.gold').text(`Gold: ${userState.coin}`);
+        } else {
+            let result = Math.abs(Math.ceil((Math.random() * 2)-1));
+
+            // 0 is fail, 1 is pass
+            if (result === 0){
+                addToScreenText(`The ${userState.currentMonster.name} scowls at your attempt to make peace with words and lunges at you.`, "computer");
+                addToScreenText(`Prepare to fight!`, "computer");
+            } else if (result === 1){
+                addToScreenText(`The ${userState.currentMonster.name} shouts "I like your funny words magic man! They toss you 5 gold and go back to crouching in their bush."`, "computer");
+            }
+        }
+    }
+
+    function investigatePrompt(playerInput){
+        if (playerInput !== 'yes' && playerInput !== 'no'){
+            addToScreenText("Not a valid input. Please input 'yes' or 'no'", "computer");
+        } else {
+            addToScreenText(`You head down the ${playerInput} side of the path. After a few minutes you hear a rustling in some nearby bushes. Do you investigate?`, "computer");
+            $('.player-text-box').attr("placeholder", "yes or no?");
+            gameState.stage = 'investigatePrompt';
+        }
     }
 
     //need session for this function
